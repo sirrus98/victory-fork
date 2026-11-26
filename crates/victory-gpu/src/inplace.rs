@@ -1813,6 +1813,19 @@ pub(crate) mod tests {
         if device.cast::<ID3D12Device13>().is_err() {
             return;
         }
+        check_buffer_at_offset(device);
+    }
+
+    /// Exercise the same small allocation and fenced copies through the physical adapter.
+    #[test]
+    #[ignore = "requires a physical adapter with ID3D12Device13 and host memory import"]
+    fn physical_in_place_buffer_shows_bytes_at_offset() {
+        let device = card();
+        device.cast::<ID3D12Device13>().expect("physical adapter supports ID3D12Device13");
+        check_buffer_at_offset(device);
+    }
+
+    fn check_buffer_at_offset(device: ID3D12Device) {
         // SAFETY: an allocation of the test's own.
         unsafe {
             let base = mem::VirtualAlloc(std::ptr::null(), 8 * K64, mem::MEM_RESERVE | mem::MEM_COMMIT | MEM_WRITE_WATCH, mem::PAGE_READWRITE).cast::<u8>();
